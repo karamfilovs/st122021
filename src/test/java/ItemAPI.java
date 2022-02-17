@@ -36,10 +36,14 @@ public class ItemAPI {
 
     public static void deleteAllItems(){
         Response allItemsResp = getAllItems(); //Retrieves all items from the system as json
-        List<Integer> ids = JsonPath.read(allItemsResp.body().asString(), "$.items..id"); //Extracts all ids from the json
-        System.out.println("Ids found for deletion:" + ids.toString());
-        //Delete all ids
-        ids.forEach(id -> deleteItem(String.valueOf(id))); //Deletes all items one by one
+        if(allItemsResp.getBody().asString().startsWith("[")){
+            System.out.println("Nothing to be deleted");
+        } else {
+            List<Integer> ids = JsonPath.read(allItemsResp.body().asString(), "$.items..id"); //Extracts all ids from the json
+            System.out.println("Ids found for deletion:" + ids.toString());
+            //Delete all ids
+            ids.forEach(id -> deleteItem(String.valueOf(id))); //Deletes all items one by on
+        }
     }
 
     public static Response getItem(String id){
