@@ -8,15 +8,15 @@ import io.restassured.response.Response;
 import java.util.List;
 
 public class ItemAPI {
-    private static final String EMAIL = "Enter your email";
-    private static final String PASSWORD = "Enter your password";
+    private static final String EMAIL = "karamfilovs@gmail.com";
+    private static final String PASSWORD = "123456";
     private static final String ITEMS_URL = "/items";
     private static final String ITEM_URL = "/item";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
 
     static {
-        RestAssured.baseURI = "Enter your base url"; //example https://st2016.inv.bg
+        RestAssured.baseURI = "https://st2016.inv.bg"; //example https://st2016.inv.bg
         RestAssured.basePath = "/RESTapi";
         RestAssured.authentication = RestAssured.preemptive().basic(EMAIL, PASSWORD);
     }

@@ -9,9 +9,9 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import java.util.concurrent.TimeUnit;
 
 public class LoginPageTest {
-    private static final String BASE_URL = "enter your login url";  //example https://st2016.inv.bg
-    private static final String EMAIL = "enter your email here";
-    private static final String PASSWORD = "enter your password";
+    private static final String BASE_URL = "https://st2016.inv.bg";  //example https://st2016.inv.bg
+    private static final String EMAIL = "karamfilovs@gmail.com";
+    private static final String PASSWORD = "123456";
     private WebDriver driver = null;
 
     @BeforeAll //This happens before all tests

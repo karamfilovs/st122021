@@ -1,5 +1,4 @@
 import io.github.bonigarcia.wdm.WebDriverManager;
-import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -9,10 +8,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import java.util.concurrent.TimeUnit;
 
 public class ItemPageTest {
-    private static final String BASE_URL = "Enter your base url here";  //example https://st2016.inv.bg
+    private static final String BASE_URL = "https://st2016.inv.bg";  //example https://st2016.inv.bg
     private static final String ITEM_PAGE_URL = "/objects/manage";
-    private static final String EMAIL = "Enter your email here";
-    private static final String PASSWORD = "Enter your password here";
+    private static final String EMAIL = "karamfilovs@gmail.com";
+    private static final String PASSWORD = "123456";
     private WebDriver driver = null;
 
     @BeforeAll //This happens before all tests
@@ -41,7 +40,7 @@ public class ItemPageTest {
     @DisplayName("Can search for existing items by name - full match")
     void canSearchForExistingItemsByNameFullMatch() {
         String itemName = "Created via API2";
-        Item item = new Item(itemName, "30", "gr."); //Configuring java object which represents item
+        Item item = new Item(itemName, "30", 10, "gr."); //Configuring java object which represents item
         ItemAPI.createItem(item); //Creates the item using API call
         login(); //Successful login
         driver.navigate().to(BASE_URL + ITEM_PAGE_URL); //Navigates to item page
@@ -59,12 +58,11 @@ public class ItemPageTest {
     }
 
 
-
     @Test
     @DisplayName("Can search for existing items - partial match")
-    void canSearchItemsPartialMatch(){
+    void canSearchItemsPartialMatch() {
         String itemName = "Very good coffee";
-        Item item = new Item(itemName, "30", "gr."); //Configuring java object which represents item
+        Item item = new Item(itemName, "30", 10, "gr."); //Configuring java object which represents item
         ItemAPI.createItem(item); //Creates the item using API call
         login(); //Successful login
         driver.navigate().to(BASE_URL + ITEM_PAGE_URL); //Navigates to Item page
@@ -93,33 +91,58 @@ public class ItemPageTest {
 
 
     @Test
-    @DisplayName("Correct text is displayed if no items are found in the table") //Все още нямате добавени артикули.
-    void correctTextIsDisplayedIfNoItemsExist(){
-        //Homework
-        //Add the other steps here
+    @DisplayName("Correct text is displayed if no items are found in the table")
+        //Все още нямате добавени артикули.
+    void correctTextIsDisplayedIfNoItemsExist() {
+        //Solution 1
+        login();
+        ItemAPI.deleteAllItems();
+        driver.navigate().to(BASE_URL + ITEM_PAGE_URL); //Navigates to Item page
+        WebElement itemPageHeadline = driver.findElement(By.xpath("//div[@id='headline2']//h2")); //Locates the item page headline
+        Assertions.assertEquals("Артикули", itemPageHeadline.getText()); //Checks the headline text
         WebElement emptyListMessage = driver.findElement(By.id("emptylist")); //Locates the empty list message
-        //Add assert here to make sure the message text is OK
+        Assertions.assertEquals("Все още нямате добавени артикули.", emptyListMessage.getText());
     }
 
     @Test
     @DisplayName("Can search items by price")
-    void canSearchItemsByPrice(){
-        //Homework
-        //Add the other steps here
-
-
+    void canSearchItemsByPrice() {
+        //Solution 2
+        ItemAPI.deleteAllItems();
+        Item coffee = new Item("Coffee", "10", 5, "kg.");
+        Item whiskey = new Item("Whiskey", "1", 15, "kg.");
+        ItemAPI.createItem(coffee);
+        ItemAPI.createItem(whiskey);
+        login();
+        driver.navigate().to(BASE_URL + ITEM_PAGE_URL); //Navigates to Item page
+        WebElement itemPageHeadline = driver.findElement(By.xpath("//div[@id='headline2']//h2")); //Locates the item page headline
+        Assertions.assertEquals("Артикули", itemPageHeadline.getText()); //Checks the headline text
+        //Search for existing item
+        WebElement expandSearchButton = driver.findElement(By.id("searchbtn")); //Locates expand search button
+        expandSearchButton.click(); //Clicks the expand search button
         //This section enters the price range from - to without clicking the search button
-        WebElement priceFrom  = driver.findElement(By.name("pr1")); //Locates the price from
-        priceFrom.sendKeys("10"); //Enters specific price
-        WebElement priceTo  = driver.findElement(By.name("pr2")); //Locates the price to
-        priceFrom.sendKeys("20"); //Enters specific price
+        WebElement priceFrom = driver.findElement(By.name("pr1")); //Locates the price from
+        priceFrom.sendKeys("1"); //Enters specific price
+        WebElement priceTo = driver.findElement(By.name("pr2")); //Locates the price to
+        priceTo.sendKeys("10"); //Enters specific price
         //Add assert to make sure the text in the row found is as expected
+        WebElement searchButton = driver.findElement(By.name("s")); //Locates the trigger search button
+        searchButton.click(); //Clicks the search button
+        WebElement tableRow = driver.findElement(By.cssSelector("a.faktura_id")); //Locates the first effective(not the column name) table row
+        Assertions.assertTrue(tableRow.getText().contains("Coffee"), "The item name was not found"); //Checks the text
+        //This section enters the price range from - to without clicking the search button
+        WebElement priceFrom2 = driver.findElement(By.name("pr1")); //Locates the price from
+        priceFrom2.clear();
+        priceFrom2.sendKeys("6"); //Enters specific price
+        WebElement priceTo2 = driver.findElement(By.name("pr2")); //Locates the price to
+        priceTo2.clear();
+        priceTo2.sendKeys("20"); //Enters specific price
+        //Add assert to make sure the text in the row found is as expected
+        WebElement searchButton2 = driver.findElement(By.name("s")); //Locates the trigger search button
+        searchButton2.click(); //Clicks the search button
+        WebElement tableRow2 = driver.findElement(By.cssSelector("a.faktura_id")); //Locates the first effective(not the column name) table row
+        Assertions.assertTrue(tableRow2.getText().contains("Whiskey"), "The item name was not found"); //Checks the text
     }
-
-
-
-
-
 
 
     private void login() {
